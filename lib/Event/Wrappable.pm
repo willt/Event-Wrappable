@@ -44,6 +44,18 @@ sub _new {
     return $event;
 }
 
+# Borrowed from Sub::Clone
+sub clone_sub ($) {
+	my $sub = shift;
+	my $clone = sub { goto $sub };
+
+	if ( defined( my $class = blessed($sub) ) ) {
+		bless $clone, $class;
+	}
+
+	return $clone;
+}
+
 =helper sub event( CodeRef $code ) returns CodeRef
 
 Returns the wrapped code ref, to be passed to be an event listener.  This
@@ -133,18 +145,6 @@ sub CLONE {
         $INSTANCES{refaddr $object} = $INSTANCES{$_};
         delete $INSTANCES{$_};
     }
-}
-
-# Borrowed from Sub::Clone
-sub clone_sub ($) {
-	my $sub = shift;
-	my $clone = sub { goto $sub };
-
-	if ( defined( my $class = blessed($sub) ) ) {
-		bless $clone, $class;
-	}
-
-	return $clone;
 }
 
 1;
