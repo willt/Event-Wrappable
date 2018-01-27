@@ -2,12 +2,11 @@
 package Event::Wrappable;
 use strict;
 use warnings;
-use Scalar::Util qw( refaddr weaken );
+use Scalar::Util qw( refaddr weaken blessed );
 use Sub::Exporter -setup => {
     exports => [qw( event event_method )],
     groups => { default => [qw( event event_method )] },
     };
-use Sub::Clone qw( clone_sub );
 
 our %INSTANCES;
 
@@ -134,6 +133,18 @@ sub CLONE {
         $INSTANCES{refaddr $object} = $INSTANCES{$_};
         delete $INSTANCES{$_};
     }
+}
+
+# Borrowed from Sub::Clone
+sub clone_sub ($) {
+	my $sub = shift;
+	my $clone = sub { goto $sub };
+
+	if ( defined( my $class = blessed($sub) ) ) {
+		bless $clone, $class;
+	}
+
+	return $clone;
 }
 
 1;
